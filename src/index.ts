@@ -198,11 +198,18 @@ export default {
             })
           }
         case env.API_SUBDOMAIN:
-          logger.debug("sending api event to icedb")
-          newURL.hostname = "api.segment.io"
-          let c = request.clone()
-          c.headers.set('Authorization', `Bearer ${env.ICEDB_AUTH}`)
-  				res = await fetch(env.ICEDB_URL, c as any)
+          const b = await request.text()
+          const finalURL = env.ICEDB_URL + "/twitch-ext/insert"
+  				res = await fetch(finalURL, {
+            headers: {
+              "content-type": "application/json",
+              "content-length": b.length.toString(),
+              "access-control-allow-origin": "*",
+              'Authorization': `Bearer ${env.ICEDB_AUTH}`,
+            },
+            body: b,
+            method: 'POST'
+          })
           break
 
         default:
