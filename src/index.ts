@@ -9,6 +9,8 @@ export interface Env {
   CDN_SUBDOMAIN: string
   API_SUBDOMAIN: string
   PREFIX_SECRET: string
+  ICEDB_URL: string
+  ICEDB_AUTH: string
 }
 
 export default {
@@ -196,9 +198,11 @@ export default {
             })
           }
         case env.API_SUBDOMAIN:
-          logger.debug("getting the api")
+          logger.debug("sending api event to icedb")
           newURL.hostname = "api.segment.io"
-  				res = await fetch(newURL.toString(), request as any)
+          let c = request.clone()
+          c.headers.set('Authorization', `Bearer ${env.ICEDB_AUTH}`)
+  				res = await fetch(env.ICEDB_URL, c as any)
           break
 
         default:
