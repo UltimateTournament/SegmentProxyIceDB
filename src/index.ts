@@ -11,6 +11,7 @@ export interface Env {
   PREFIX_SECRET: string
   ICEDB_URL: string
   ICEDB_AUTH: string
+  TB_AUTH: string
 }
 
 export default {
@@ -200,16 +201,30 @@ export default {
         case env.API_SUBDOMAIN:
           const b = await request.text()
           const finalURL = env.ICEDB_URL + "/twitch-ext/insert"
-  				res = await fetch(finalURL, {
-            headers: {
-              "content-type": "application/json",
-              "content-length": b.length.toString(),
-              "access-control-allow-origin": "*",
-              'Authorization': `Bearer ${env.ICEDB_AUTH}`,
-            },
-            body: b,
-            method: 'POST'
-          })
+          let tbres
+  				[res, tbres] = await Promise.all([
+            fetch(finalURL, {
+              headers: {
+                "content-type": "application/json",
+                "content-length": b.length.toString(),
+                "access-control-allow-origin": "*",
+                'Authorization': `Bearer ${env.ICEDB_AUTH}`,
+              },
+              body: b,
+              method: 'POST'
+            }),
+            fetch("https://api.us-east.tinybird.co/v0/events?name=segment_proxy_mirror", {
+              headers: {
+                "content-type": "application/json",
+                "content-length": b.length.toString(),
+                "access-control-allow-origin": "*",
+                'Authorization': `Bearer ${env.TB_AUTH}`,
+              },
+              body: b,
+              method: 'POST'
+            })
+          ])
+          console.log('tbres', tbres.status, tbres.status > 299 ? await tbres.text() : '---')
           break
 
         default:
