@@ -205,7 +205,7 @@ export default {
             const j = JSON.parse(b)
             const temp = {
               "ts": j['receivedAt'] ? j['receivedAt'] : new Date().toISOString(),
-              "event": j['type'] === 'page' ? "page." + j['type'] : j['type'] === 'identify' ? "identify" : j['event'],
+              "event": j['type'] === 'page' ? "page." + j['type'] : j['type'] === 'identify' ? "identify" : 'event.' + j['event'],
               "user_id": !!j['userId'] ? j['userId'] : j['anonymousId'],
               "properties": JSON.stringify(j.properties),
               "og_payload": JSON.stringify(j)
