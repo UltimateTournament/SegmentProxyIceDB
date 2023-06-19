@@ -201,6 +201,17 @@ export default {
         case env.API_SUBDOMAIN:
           const b = await request.text()
           const finalURL = env.ICEDB_URL + "/twitch-ext/insert"
+          const tbb = (() => {
+            const j = JSON.parse(b)
+            const temp = {
+              "ts": j['receivedAt'] ? j['receivedAt'] : new Date().toISOString(),
+              "event": j['type'] === 'page' ? "page." + j['type'] : j['type'] === 'identify' ? "identify" : j['event'],
+              "user_id": !!j['userId'] ? j['userId'] : j['anonymousId'],
+              "properties": JSON.stringify(j.properties),
+              "og_payload": JSON.stringify(j)
+            }
+            return JSON.stringify(temp)
+          })()
           let tbres
   				[res, tbres] = await Promise.all([
             fetch(finalURL, {
@@ -216,11 +227,11 @@ export default {
             fetch("https://api.us-east.tinybird.co/v0/events?name=segment_proxy_mirror", {
               headers: {
                 "content-type": "application/json",
-                "content-length": b.length.toString(),
+                "content-length": tbb.length.toString(),
                 "access-control-allow-origin": "*",
                 'Authorization': `Bearer ${env.TB_AUTH}`,
               },
-              body: b,
+              body: tbb,
               method: 'POST'
             })
           ])

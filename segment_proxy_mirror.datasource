@@ -1,0 +1,11 @@
+
+SCHEMA >
+    `properties` String `json:$.properties`,
+    `og_payload` String `json:$.og_payload`,
+    `user_id` String `json:$.user_id`,
+    `ts` DateTime64(3) `json:$.ts`,
+    `event` String `json:$.event`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(ts)"
+ENGINE_SORTING_KEY "event, ts"
